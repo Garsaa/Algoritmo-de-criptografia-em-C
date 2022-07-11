@@ -4,25 +4,6 @@
 #include <time.h>       
 #include <locale.h>
 
-//Gabriel Garcia Vieira, algoritmos e programação 2
-/*
-(-)eu optei por um algoritmo simples mas aparentemente eficiente, que eu pensei, usando ASCII, tendo como base o sistema de
-chave privada e chave pública do algoritmo de criptografia RSA, um dos mais utilizados atualmente.
-(-)Ele pega o texto digitado e o modifica caractere por caractere e após o criptografar e gera 2 chaves 
-aleatórias para o texto. Guardando as chaves em arquivos separados e a string criptografada em outro arquivo 
-assim é possível fazer um controle por linha para vincular a mensagem criptografada à suas chaves e cada 
-descriptografia ser realizada com referência nas linhas dos arquivos e dessa forma, só será possível descriptografar cada texto
-com as suas respectivas chaves geradas no momento da criptografia. 
-(-)A mensagem descriptografada é exibida em maiúsculas.
-(-)Professora, não fiz a consistência para caso o usuário tente criptografar um texto igual a um que já foi criptografado
-porque pensei numa situação mais real, onde eu não sei quem vai usar o algoritmo.
-(-)Professora, optei por usar o gets em alguns casos, pois o fgets não funcionou direito e não encontrei alguma outra opção plausível.
-(-)Segue também arquivos vazios .txt, para serem inseridos na mesma pasta que o código fonte, que são essenciais para o funcionamento do programa
-caso seu compilador não os crie automáticamente.
-(-)Professora, o algoritmo usa como base a tabela ASCII-7, que foi desenvolvida tendo como base o inglês, ou seja, o programa
-não está preparado para criptografar ou descriptografar utilizando acentos. pensei em usar com base o inglês por ter uma padronização maior
-considerando o quanto o inglês abrange a maior parte das pessoas.
-*/
 
 //região de declaração dos protótipos das funções
 void imprimeAsteriscos(int quantidadeAsteriscos);
@@ -32,7 +13,7 @@ void geraChavePublica();
 void geraChavePrivada();
 void descriptografia(char stringCriptografadaD[500]);
 
-//regiao de desenvolvimento da main
+//regiao de desenvolvimento da função main
 int main(){
     int operacaoNaMain, tamanhoDaString1, tamanhoDaString2, i, testeParaDescriptografia=0, testaSeAlgoFoiCriptografado =0;
     char stringParaCriptografia[500], stringCriptografada[500] = {" "};
