@@ -1,0 +1,593 @@
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include <time.h>       
+#include <locale.h>
+
+//Gabriel Garcia Vieira, algoritmos e programação 2
+/*
+(-)eu optei por um algoritmo simples mas aparentemente eficiente, que eu pensei, usando ASCII, tendo como base o sistema de
+chave privada e chave pública do algoritmo de criptografia RSA, um dos mais utilizados atualmente.
+(-)Ele pega o texto digitado e o modifica caractere por caractere e após o criptografar e gera 2 chaves 
+aleatórias para o texto. Guardando as chaves em arquivos separados e a string criptografada em outro arquivo 
+assim é possível fazer um controle por linha para vincular a mensagem criptografada à suas chaves e cada 
+descriptografia ser realizada com referência nas linhas dos arquivos e dessa forma, só será possível descriptografar cada texto
+com as suas respectivas chaves geradas no momento da criptografia. 
+(-)A mensagem descriptografada é exibida em maiúsculas.
+(-)Professora, não fiz a consistência para caso o usuário tente criptografar um texto igual a um que já foi criptografado
+porque pensei numa situação mais real, onde eu não sei quem vai usar o algoritmo.
+(-)Professora, optei por usar o gets em alguns casos, pois o fgets não funcionou direito e não encontrei alguma outra opção plausível.
+(-)Segue também arquivos vazios .txt, para serem inseridos na mesma pasta que o código fonte, que são essenciais para o funcionamento do programa
+caso seu compilador não os crie automáticamente.
+(-)Professora, o algoritmo usa como base a tabela ASCII-7, que foi desenvolvida tendo como base o inglês, ou seja, o programa
+não está preparado para criptografar ou descriptografar utilizando acentos. pensei em usar com base o inglês por ter uma padronização maior
+considerando o quanto o inglês abrange a maior parte das pessoas.
+*/
+
+//região de declaração dos protótipos das funções
+void imprimeAsteriscos(int quantidadeAsteriscos);
+void mostraMenu();
+void perguntaOpcao(int *operacao);
+void geraChavePublica();
+void geraChavePrivada();
+void descriptografia(char stringCriptografadaD[500]);
+
+//regiao de desenvolvimento da main
+int main(){
+    int operacaoNaMain, tamanhoDaString1, tamanhoDaString2, i, testeParaDescriptografia=0, testaSeAlgoFoiCriptografado =0;
+    char stringParaCriptografia[500], stringCriptografada[500] = {" "};
+    FILE *ponteiroParaLimpezaDeArquivo;
+    
+    //limpar o arquivo antes de começar para renovar à cada execução, já que dessa forma a pessoa pode criptografar
+    //mais de uma string por sessão do programa, e na estrutura repetitiva abrir o arquivo com "a+", adicionando e 
+    //não limpando os registros anteriores, mas não fica sujeira de memória nas próximas execuções.
+    ponteiroParaLimpezaDeArquivo = fopen("strings_criptografadas.txt", "w+");
+        fclose(ponteiroParaLimpezaDeArquivo);
+    ponteiroParaLimpezaDeArquivo = fopen("chaves_publicas.txt", "w+");
+        fclose(ponteiroParaLimpezaDeArquivo);    
+    ponteiroParaLimpezaDeArquivo = fopen("chaves_privadas.txt", "w+");
+        fclose(ponteiroParaLimpezaDeArquivo);
+
+    mostraMenu();
+    perguntaOpcao(&operacaoNaMain);
+    
+ //controle de fluxo principal do programa
+ while(operacaoNaMain!=3){
+ if(operacaoNaMain == 1){ //criptografa e informa as chaves
+     FILE *arquivoStringsCriptografadas;
+     
+     arquivoStringsCriptografadas = fopen("strings_criptografadas.txt", "a+");
+     
+     if(arquivoStringsCriptografadas == NULL){
+             printf("\nimpossivel abrir o arquivo!");
+     }else{
+       imprimeAsteriscos(40);
+     
+       printf("\nDigite a mensagem para criptografia (maximo 500 caracteres): ");   
+       gets(stringParaCriptografia);//duas vezes porque quando há um scanf, ele lê até o enter, e fica um resíduo
+       gets(stringParaCriptografia);//que faz pular o próximo gets, e limpar o resíduo com o fflush(stdin);
+                                  //nem sempre funciona, por isso os 2 gets          
+       imprimeAsteriscos(40);
+
+        
+     tamanhoDaString1 = strlen(stringParaCriptografia); //armazena o tamanho da string para controlar o programa
+     
+     tamanhoDaString2 = tamanhoDaString1;  //tamanho1 usado para varrer a string e o tamanho2 é usado para controle envolvendo a string
+     
+
+
+
+     testaSeAlgoFoiCriptografado++;
+     for(i=0;i<tamanhoDaString1;i++){  //passa a string para maiusculo
+         stringParaCriptografia[i] = toupper(stringParaCriptografia[i]);
+     }
+
+     printf("\nSegue-se suas chaves: (para descriptografar a mensagem, as guarde!): ");
+     geraChavePublica();    //gera as chaves as guarda em arquivos e as exibe
+     geraChavePrivada();
+  
+     imprimeAsteriscos(40);
+     
+
+     i=0;
+     while(tamanhoDaString1 > 0){
+     switch(stringParaCriptografia[i]){ //switch para cada caractere ASCII pertinente para criptografar
+
+        case ' ':
+                stringCriptografada[i] = 'a';
+                break;
+        case '!':
+                stringCriptografada[i] = '1';
+                break;
+        case '#':
+                stringCriptografada[i] = 'b';
+                break;
+        case '&':
+                stringCriptografada[i] = '2';
+                break;
+        case '(':
+                stringCriptografada[i] = 'c';
+                break;
+        case ')':
+                stringCriptografada[i] = '3';
+                break;
+        case '*':
+                stringCriptografada[i] = 'd';
+                break;
+        case ',':
+                stringCriptografada[i] = '4';
+                break;
+        case '.':
+                stringCriptografada[i] = 'e';
+                break;
+        case '0':
+                stringCriptografada[i] = '5';
+                break;
+        case '1':
+                stringCriptografada[i] = 'f';
+                break;
+        case '2':
+                stringCriptografada[i] = '6';
+                break;
+        case '3':
+                stringCriptografada[i] = 'g';
+                break;
+        case '4':
+                stringCriptografada[i] = '7';
+                break;
+        case '5':
+                stringCriptografada[i] = 'h';
+                break;
+        case '6':
+                stringCriptografada[i] = '8';
+                break;
+        case '7':
+                stringCriptografada[i] = 'i';
+                break;
+        case '8':
+                stringCriptografada[i] = '9';
+                break;
+        case '9':
+                stringCriptografada[i] = 'j';
+                break;
+        case ':':
+                stringCriptografada[i] = '/';
+                break;
+        case ';':
+                stringCriptografada[i] = '%';
+                break;
+        case '?':
+                stringCriptografada[i] = '&';
+                break;
+        case '@':
+                stringCriptografada[i] = '$';
+                break;
+        case 'A':
+                stringCriptografada[i] = 'k';
+                break;
+        case 'B':
+                stringCriptografada[i] = 'l';
+                break;
+        case 'C':
+                stringCriptografada[i] = 'm';
+                break;
+        case 'D':
+                stringCriptografada[i] = 'n';
+                break;
+        case 'E':
+                stringCriptografada[i] = 'o';
+                break;
+        case 'F':
+                stringCriptografada[i] = 'p';
+                break;
+        case 'G':
+                stringCriptografada[i] = 'q';
+                break;
+        case 'H':
+                stringCriptografada[i] = 'r';
+                break;
+        case 'I':
+                stringCriptografada[i] = 's';
+                break;
+        case 'J':
+                stringCriptografada[i] = 't';
+                break;
+        case 'K':
+                stringCriptografada[i] = 'u';
+                break;
+        case 'L':
+                stringCriptografada[i] = 'v';
+                break;
+        case 'M':
+                stringCriptografada[i] = 'w';
+                break;
+        case 'N':
+                stringCriptografada[i] = 'x';
+                break;
+        case 'O':
+                stringCriptografada[i] = 'y';
+                break;
+        case 'P':
+                stringCriptografada[i] = 'z';
+                break;
+        case 'Q':
+                stringCriptografada[i] = 'A';
+                break;
+        case 'R':
+                stringCriptografada[i] = 'B';
+                break;
+        case 'S':
+                stringCriptografada[i] = 'C';
+                break;
+        case 'T':
+                stringCriptografada[i] = 'D';
+                break;
+        case 'U':
+                stringCriptografada[i] = 'E';
+                break;
+        case 'V':
+                stringCriptografada[i] = 'U';
+                break;
+        case 'W':
+                stringCriptografada[i] = 'F';
+                break;
+        case 'X':
+                stringCriptografada[i] = 'G';
+                break;
+        case 'Y':
+                stringCriptografada[i] = 'H';
+                break;
+        case 'Z':
+                stringCriptografada[i] = 'I';
+                break;
+        
+        case '_':
+                stringCriptografada[i] = 'J';
+                break;
+        default: 
+                //caso seja digitado um caractere não previso, não será codificado!
+            break;
+        }
+
+        i++;
+        tamanhoDaString1--;
+        }
+     }
+    printf("\nA mensagem criptografada: %s", stringCriptografada);
+    fprintf(arquivoStringsCriptografadas,"%s \n",stringCriptografada); //salva a string criptografada em seu arquivo
+    fclose(arquivoStringsCriptografadas);
+    for(int i=0;i<tamanhoDaString2;i++){ //Da o clear na variável que recebe o texto criptografado
+    stringCriptografada[i] = NULL;       //para caso haja vontade de criptografar mais de um texto em uma sessão
+    }
+    mostraMenu();
+    perguntaOpcao(&operacaoNaMain);
+
+ }else if(operacaoNaMain == 2){ //pede as chaves para descriptografar e exibir a mensagem
+         
+         if(testaSeAlgoFoiCriptografado == 0){ //se nada foi criptografado ainda, poupa processamento e retorna ao menu
+                 printf("\nNada foi encriptado ainda, voltando ao menu! ");
+                 mostraMenu();
+                 perguntaOpcao(&operacaoNaMain);
+         }else{
+         FILE *strings_criptografadas, *chaves_publicas, *chaves_privadas;
+         strings_criptografadas = fopen("strings_criptografadas.txt", "a+");  //abre os arquivos
+         chaves_publicas = fopen("chaves_publicas.txt", "a+");
+         chaves_privadas = fopen("chaves_privadas.txt", "a+");
+         if(strings_criptografadas == NULL ||chaves_privadas == NULL ||chaves_publicas == NULL){//testa se os arquivo abriram
+                 printf("\n Impossivel abrir o arquivo!");
+         }else{
+         //região de declaração de variáveis para descriptografar texto que só são criadas se o arquivo for aberto
+         char paraDescriptografar[tamanhoDaString2+1], recebeLinhaString[tamanhoDaString2+1];
+         char chavePublica[11],chavePrivada[11], recebeChavePr[11], recebeChavePu[11];
+         printf("\nDigite a mensagem criptografada para ser descriptografada: ");
+         gets(paraDescriptografar);//duas vezes porque quando há um scanf, ele lê até o enter, e fica um resíduo
+         gets(paraDescriptografar);//que faz pular o próximo gets, e limpar o resíduo com o fflush(stdin);
+                                  //nem sempre funciona, por isso os 2 gets 
+         
+         tamanhoDaString2 = strlen(paraDescriptografar);  //reseta o tamanho da string para não haver erro no strcmp em caso de múltiplas execuções na mesma sessão
+        
+         printf("\nInsira as chaves para descriptografia da mensagem");
+         printf("\nChave publica: ");
+         gets(chavePublica);
+         printf("\nChave privada: ");
+         gets(chavePrivada);
+         
+         
+         //pegando as chaves e as strings armazenadas, em cada linha de arquivo, para comparar com as digitadas
+         //e decidir se descriptografa ou não o texto digitado pelo usuário
+         while(!feof(strings_criptografadas)){             
+            fgets(recebeLinhaString,tamanhoDaString2+1,strings_criptografadas); 
+                while(!feof(chaves_privadas)){    
+                        fgets(recebeChavePr,11,chaves_privadas);
+                        while(!feof(chaves_publicas)){
+                             fgets(recebeChavePu,11,chaves_publicas);
+                                if(strcmp(chavePublica,recebeChavePu) == 0 && strcmp(chavePrivada,recebeChavePr)==0 && strcmp(paraDescriptografar,recebeLinhaString) ==0){        
+                                        descriptografia(paraDescriptografar);
+                                        testeParaDescriptografia++;                
+                                 }
+                              break;
+                  }
+                break;
+                }
+         }
+         
+         if(testeParaDescriptografia == 0){ //teste para saber se as chaves digitadas e o texto, têm registros no programa, para então descriptografar
+                 imprimeAsteriscos(15);
+                 printf("\n[ERRO]Essa mensagem supostamente criptografada nao possui as chaves corretas.");
+                 imprimeAsteriscos(15);
+         }else{
+                 testeParaDescriptografia--; //reseta o contador para refazer o controle na próxima descriptografia no caso de 2 descriptografia seguidas
+         }
+
+         fclose(chaves_privadas);
+         fclose(chaves_publicas);
+         fclose(strings_criptografadas);
+         mostraMenu();
+         perguntaOpcao(&operacaoNaMain);
+         
+                   }
+                }
+        }
+    }
+    imprimeAsteriscos(50);
+    printf("\n Agradecemos por utilizar nossos servicos!");  //finalização do programa
+    imprimeAsteriscos(50);
+}
+
+
+
+
+
+//região de desenvolvimento das funções
+//função que imprime asteriscos
+void imprimeAsteriscos(int quantidadeAsteriscos){
+         printf("\n");
+    for(int i=0;i<quantidadeAsteriscos;i++){
+        printf("*");
+    }
+         printf("\n");
+}
+
+//função que mostra o Menu
+void mostraMenu(){
+    imprimeAsteriscos(105);
+    printf(" MENU DE CRIPTOGRAFIA ");
+    imprimeAsteriscos(105);
+    printf("1. [Criptografar]\n");
+    printf("2. [Descriptografar]\n");
+    printf("3. [Terminar Programa]\n");
+    imprimeAsteriscos(105);
+}
+
+//função que pergunta e valida a operação escolhida
+void perguntaOpcao(int *operacao){
+imprimeAsteriscos(20);  
+    printf("\n");
+    printf("Digite a operacao desejada: ");
+     scanf("%d", operacao);
+ imprimeAsteriscos(20);  
+     while(*operacao<1 || *operacao>3){
+        mostraMenu();
+         printf("Digite uma operacao valida: ");
+         scanf("%d", operacao);
+      }
+ imprimeAsteriscos(20);  
+}
+
+//função que gera a chave publica para descriptografia
+void geraChavePublica(){
+    FILE *arquivoChavesPublicas;
+    arquivoChavesPublicas = fopen("chaves_publicas.txt", "a+");
+    if(arquivoChavesPublicas == NULL){
+        printf("Impossivel abrir arquivo");    
+    }else{
+         char chavePublica[11];   
+         int chavePub[10];
+          srand(time(0)); //usa o próprio time para randomizar a geração do rand() a cada execução    
+          for(int i=0;i<10;i++){
+                 *chavePub = (rand() %58)+64;
+                   chavePublica[i] = *chavePub;
+         }
+         printf("\nChave publica : %s", chavePublica);
+         fprintf(arquivoChavesPublicas,"%s\n",chavePublica);
+         fclose(arquivoChavesPublicas);  
+    }
+}
+
+//função que gera a chave privada para descriptografia, feitas em diferentes condições para aumentar a segurança
+void geraChavePrivada(){        
+   FILE *arquivoChavesPrivadas;
+    char chavePrivada[11];
+    
+    arquivoChavesPrivadas = fopen("chaves_privadas.txt", "a+");
+
+    if(arquivoChavesPrivadas == NULL){
+        printf("Impossivel abrir arquivo");    
+    }else{
+          int chavePriv[10];
+          srand(time(0)); //usa o próprio time para randomizar a geração do rand() a cada execução    
+         for(int i=0;i<10;i++){
+          *chavePriv = (rand() %9)+48;
+           chavePrivada[i] = *chavePriv;
+          } 
+         printf("\nChave privada : %s", chavePrivada);
+         fprintf(arquivoChavesPrivadas,"%s\n",chavePrivada);
+         fclose(arquivoChavesPrivadas);
+    }
+}
+
+//função que descriptografa o texto e o exibe
+void descriptografia(char stringCriptografadaD[500]){
+ int tamanhoDaString, i=0;
+ char recebeStringDescriptografada[500];
+ strcpy(recebeStringDescriptografada,stringCriptografadaD);
+ 
+  tamanhoDaString = strlen(stringCriptografadaD);
+
+
+ 
+ while(tamanhoDaString > 0){
+   switch(stringCriptografadaD[i]){ //switch para cada caractere ASCII pertinente para criptografar
+
+        case 'a':
+                recebeStringDescriptografada[i] = ' ';
+                break;
+        case '1':
+                recebeStringDescriptografada[i] = '!';
+                break;
+        case 'b':
+                recebeStringDescriptografada[i] = '#';
+                break;
+        case '2':
+                recebeStringDescriptografada[i] = '&';
+                break;
+        case 'c':
+                recebeStringDescriptografada[i] = '(';
+                break;
+        case '3':
+                recebeStringDescriptografada[i] = ')';
+                break;
+        case 'd':
+                recebeStringDescriptografada[i] = '*';
+                break;
+        case '4':
+                recebeStringDescriptografada[i] = ',';
+                break;
+        case 'e':
+                recebeStringDescriptografada[i] = '.';
+                break;
+        case '5':
+                recebeStringDescriptografada[i] = '0';
+                break;
+        case 'f':
+                recebeStringDescriptografada[i] = '1';
+                break;
+        case '6':
+                recebeStringDescriptografada[i] = '2';
+                break;
+        case 'g':
+                recebeStringDescriptografada[i] = '3';
+                break;
+        case '7':
+                recebeStringDescriptografada[i] = '4';
+                break;
+        case 'h':
+                recebeStringDescriptografada[i] = '5';
+                break;
+        case '8':
+                recebeStringDescriptografada[i] = '6';
+                break;
+        case 'i':
+                recebeStringDescriptografada[i] = '7';
+                break;
+        case '9':
+                recebeStringDescriptografada[i] = '8';
+                break;
+        case 'j':
+                recebeStringDescriptografada[i] = '9';
+                break;
+        case '/':
+                recebeStringDescriptografada[i] = ':';
+                break;
+        case '%':
+                recebeStringDescriptografada[i] = ';';
+                break;
+        case '&':
+                recebeStringDescriptografada[i] = '?';
+                break;
+        case '$':
+                recebeStringDescriptografada[i] = '@';
+                break;
+        case 'k':
+                recebeStringDescriptografada[i] = 'A';
+                break;
+        case 'l':
+                recebeStringDescriptografada[i] = 'B';
+                break;
+        case 'm':
+                recebeStringDescriptografada[i] = 'C';
+                break;
+        case 'n':
+                recebeStringDescriptografada[i] = 'D';
+                break;
+        case 'o':
+                recebeStringDescriptografada[i] = 'E';
+                break;
+        case 'p':
+                recebeStringDescriptografada[i] = 'F';
+                break;
+        case 'q':
+                recebeStringDescriptografada[i] = 'G';
+                break;
+        case 'r':
+                recebeStringDescriptografada[i] = 'H';
+                break;
+        case 's':
+                recebeStringDescriptografada[i] = 'I';
+                break;
+        case 't':
+                recebeStringDescriptografada[i] = 'J';
+                break;
+        case 'u':
+                recebeStringDescriptografada[i] = 'K';
+                break;
+        case 'v':
+                recebeStringDescriptografada[i] = 'L';
+                break;
+        case 'w':
+                recebeStringDescriptografada[i] = 'M';
+                break;
+        case 'x':
+                recebeStringDescriptografada[i] = 'N';
+                break;
+        case 'y':
+                recebeStringDescriptografada[i] = 'O';
+                break;
+        case 'z':
+                recebeStringDescriptografada[i] = 'P';
+                break;
+        case 'A':
+                recebeStringDescriptografada[i] = 'Q';
+                break;
+        case 'B':
+                recebeStringDescriptografada[i] = 'R';
+                break;
+        case 'C':
+                recebeStringDescriptografada[i] = 'S';
+                break;
+        case 'D':
+                recebeStringDescriptografada[i] = 'T';
+                break;
+        case 'E':
+                recebeStringDescriptografada[i] = 'U';
+                break;
+        case 'U':
+                recebeStringDescriptografada[i] = 'V';
+                break;
+        case 'F':
+                recebeStringDescriptografada[i] = 'W';
+                break;
+        case 'G':
+                recebeStringDescriptografada[i] = 'X';
+                break;
+        case 'H':
+                recebeStringDescriptografada[i] = 'Y';
+                break;
+        case 'I':
+                recebeStringDescriptografada[i] = 'Z';
+                break;
+        case 'J':
+                recebeStringDescriptografada[i] = '_';
+                break;
+        default:
+            break;
+        }
+
+        i++;
+        tamanhoDaString--;
+        }
+   printf("\nO texto descriptografado : %s", recebeStringDescriptografada);
+
+
+}
+
